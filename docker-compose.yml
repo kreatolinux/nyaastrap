@@ -1,0 +1,10 @@
+# This file is a part of nyaastrap
+# Licensed under GPLv3
+services:
+  build:
+    image: ubuntu:latest
+    volumes:
+      - ./nyaa-repo:/etc/nyaa
+      - ./out:/out
+      - ./:/nyaa
+    command: sh -c "sh /nyaa/build-ubu.sh"

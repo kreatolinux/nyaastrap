@@ -1,0 +1,16 @@
+build-essential
+wget
+libcurl4-openssl-dev
+git
+pkg-config
+gawk
+libz-dev
+m4
+p11-kit
+libssl-dev
+libffi-dev
+bison
+meson
+libtasn1-6
+libtasn1-6-dev
+curl

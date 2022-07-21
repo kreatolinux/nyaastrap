@@ -1,0 +1,234 @@
+#!/bin/sh
+# nyaastrap
+# new rootfs builder backend
+# Copyright 2021 <kreato@kreatea.space>
+#
+# This file is part of nyaastrap.
+#
+# nyaastrap is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# nyaastrap is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with nyaastrap.  If not, see <https://www.gnu.org/licenses/>.
+VERSION="1.2"
+
+err() {
+    echo "E: $1"
+    exit 1
+}
+
+warn() {
+    echo "W: $1"
+}
+
+info() {
+    echo "I: $1"
+}
+
+chkroot() {
+    [ "$(id -u)" != "0" ] && err "You need to be root to do this action."
+}
+
+help() {
+        printf "nyaastrap [-c] [CONFIG] [-g] [DIR] [CLIB] [CC] [TLS] [COREUTIL] [-b]\n"
+}
+
+mkdir_dirs() {
+        [ -d "$1" ] && info "rootfs directory exist, removing" && rm -rf "${1:?}"
+        mkdir -pv "${1:?}"
+        mkdir -pv "${1:?}"/etc "${1:?}"/var "${1:?}"/usr/bin "${1:?}"/home "${1:?}"/boot "${1:?}"/media "${1:?}"/root "${1:?}"/srv "${1:?}"/dev "${1:?}"/opt "${1:?}"/proc "${1:?}"/sys "${1:?}"/tmp "${1:?}"/run
+        for i in bin lib; do ln -sv usr/$i ${1:?}/$i; done
+        case $(uname -m) in 
+            x86_64) 
+                 ln -sv bin "${1:?}/usr/sbin"
+                 ln -sv usr/lib "${1:?}/lib64"
+                 ln -sv lib "${1:?}/usr/lib64"
+                 ;; 
+        esac
+        ln -sv usr/bin ${1:?}/sbin
+        info "root directory structure created."
+}
+
+chkoverlay() {
+    if [ -d "overlay" ]; then
+        info "overlay found, installing contents"
+        cp -rf overlay/* "${1:?}"
+    fi
+}
+
+installbin() {
+    nyaa i "$1" -y -r "${2:?}"
+}
+
+intro() {
+printf -- "------------------------------------------
+--                                      --
+--              nyaastrap               --  
+--      rootfs built on $(date +%D)        --
+--                                      --
+------------------------------------------
+"
+}
+
+case $1 in
+    "-c")
+        chkroot
+        if [ -f "$PWD/.config" ]; then
+            . "$PWD/.config"
+        else
+            [ ! -f "$2" ] && err "please enter a config filename"
+            [ -f "$2" ] && . "$2"
+        fi
+        intro
+        mkdir_dirs "${CONFIG_BUILDDIR:?}"
+        chkoverlay "${CONFIG_BUILDDIR:?}"
+        
+        if [ "$CONFIG_TLS_OPENSSL" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+            info "binary option selected, installing openssl with binary"
+            installbin openssl "${CONFIG_BUILDDIR:?}"
+        elif [ "$CONFIG_TLS_LIBRESSL" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+            info "binary option selected, installing libressl with binary"
+            installbin libressl "${CONFIG_BUILDDIR:?}"
+        else
+            if [ "$CONFIG_TLS_OPENSSL" = "y" ]; then
+                nyaa b openssl -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing openssl"
+            elif [ "$CONFIG_TLS_LIBRESSL" = "y" ]; then
+                nyaa b libressl -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing libressl"
+            fi
+        fi
+        
+
+
+
+        if [ "$CONFIG_CC_GCC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+            info "binary option selected, installing gcc with binary"
+            installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
+        else
+            if [ "$CONFIG_CC_GCC" = "y" ]; then
+                nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+            else
+                warn "WIP, GCC is the only option"
+            fi 
+        fi
+        
+
+        if [ "$CONFIG_CLIB_GLIBC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+                info "binary option selected, installing glibc with binary"
+                installbin glibc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc (from binary)"
+        elif [ "$CONFIG_CLIB_GLIBC" = "y" ]; then
+            nyaa b glibc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
+        fi
+        
+        if [ "$CONFIG_BINARY" = "y" ]; then
+            installbin git "${CONFIG_BUILDDIR:?}"
+        else
+            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
+        fi
+        
+        nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}"
+        chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
+         if [ "$CONFIG_CORE_BUSYBOX" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+            info "binary option selected, installing busybox with binary"
+            installbin busybox "${CONFIG_BUILDDIR:?}" || err "error while installing busybox (binary)"
+            chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install
+        else
+            if [ "$CONFIG_CORE_BUSYBOX" = "y" ]; then
+                nyaa b busybox -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
+                chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install 
+            else
+                err "WIP, busybox is the only optionP"
+            fi
+        fi
+
+        if [ "$CONFIG_BINARY" = "y" ]; then
+            installbin p11-kit
+        else
+            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
+        fi
+
+        nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
+        until wget "https://hg.mozilla.org/releases/mozilla-release/raw-file/default/security/nss/lib/ckfw/builtins/certdata.txt" -O "${CONFIG_BUILDDIR:?}"/certdata.txt; do
+            warn "download failed, retrying"
+        done
+        chroot "${CONFIG_BUILDDIR:?}" /bin/bash -c ". /etc/profile && cd / && /usr/sbin/make-ca -C certdata.txt"
+        rm "${CONFIG_BUILDDIR:?}/certdata.txt"
+        if [ -n "$CONFIG_EXTRA_PACKAGES" ];
+        then
+            info "$CONFIG_EXTRA_PACKAGES is set, installing those"
+            for i in $(echo $CONFIG_EXTRA_PACKAGES | tr ";" "\n")
+            do
+                if [ "$CONFIG_BINARY" = "y" ]; then
+                    installbin "$i" "${CONFIG_BUILDDIR:?}" || err "error while installing $i (binary)"
+                else 
+                    nyaa b "$i" -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing $i"
+                fi
+            done
+        fi
+        ;;
+    "-g")
+        printf """# nyaastrap configuration file.
+# Please edit if you know what you are doing.
+# Generated on $(date +%D)\n"""
+        echo "CONFIG_BUILDDIR=${2:?}"
+        case $3 in
+            "glibc")
+                echo "CONFIG_CLIB_GLIBC=y"
+            ;;
+            "musl")
+                echo "CONFIG_CLIB_MUSL=y"
+            ;;
+        esac
+        case $4 in
+            "gcc")
+                echo "CONFIG_CC_GCC=y"
+            ;;
+            "clang")
+                echo "CONFIG_CC_CLANG=y"
+            ;;
+        esac
+        case $5 in
+            "openssl")
+                echo "CONFIG_TLS_OPENSSL=y"
+            ;;
+            "libressl")
+                echo "CONFIG_TLS_LIBRESSL=y"
+            ;;
+        esac
+        case $6 in
+            "busybox")
+                echo "CONFIG_CORE_BUSYBOX=y"
+            ;;
+            "nimutils")
+                echo "# PLEASE KNOW THAT NIMUTILS IS STILL EXPERIMENTAL"
+                echo "CONFIG_CORE_NIMUTILS=y"
+            ;;
+            "uutils")
+                echo "CONFIG_CORE_UUTILS=y"
+            ;;
+            "gnu")
+                echo "CONFIG_CORE_GNU=y"
+            ;;
+        esac
+        if [ "$7" = "-b" ]; then
+            echo "CONFIG_BINARY=y"
+        fi
+        ;;
+    "-v")
+        printf "nyaastrap - kreato linux rootfs builder version %s
+Copyright (C) 2022 Kreato.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.\n" "$VERSION"
+    ;;
+    *)
+        help
+    ;;
+esac
+
