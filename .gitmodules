@@ -1,3 +1,6 @@
 [submodule "nyaa-repo"]
 	path = nyaa-repo
 	url = https://github.com/Kreato-Linux/nyaa-repo.git
+[submodule "nyaa-upstream"]
+	path = nyaa-upstream
+	url = https://github.com/kreatolinux/nyaa
