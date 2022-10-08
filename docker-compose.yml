@@ -2,10 +2,18 @@
 # Licensed under GPLv3
 version: "2"
 services:
-  build:
+  build-rootfs:
     image: ubuntu:latest
     volumes:
       - ./nyaa-repo:/etc/nyaa
       - ./out:/out
       - ./:/nyaa
-    command: sh -c "sh /nyaa/build-ubu.sh"
+    command: sh -c "sh /nyaa/scripts/build-rootfs.sh"
+  build-packages:
+    image: ubuntu:latest
+    volumes: 
+      - ./nyaa-repo:/etc/nyaa
+      - ./out:/out
+      - ./:/nyaa
+      - ./packages:/etc/nyaa.tarballs
+    command: sh -c "sh /nyaa/scripts/build-packages.sh" 

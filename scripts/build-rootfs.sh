@@ -8,7 +8,7 @@ do
 done
 apt-get install $PKGLIST -y
 if [ ! -f "nyaa" ]; then
-    git clone https://git.kreato.dev/kreato-linux/nyaa
+    git clone https://github.com/kreatolinux/nyaa
 fi
 cp -f nyaa /usr/bin
 chmod +x /usr/bin/nyaa
