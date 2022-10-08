@@ -3,6 +3,7 @@ wget
 libcurl4-openssl-dev
 git
 pkg-config
+autoconf
 gawk
 libz-dev
 m4
