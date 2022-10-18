@@ -2,6 +2,7 @@ build-essential
 wget
 libcurl4-openssl-dev
 git
+llvm
 pkg-config
 autoconf
 gawk

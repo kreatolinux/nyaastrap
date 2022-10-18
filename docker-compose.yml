@@ -8,6 +8,7 @@ services:
       - ./nyaa-repo:/etc/nyaa
       - ./out:/out
       - ./:/nyaa
+      - ./packages:/etc/nyaa.tarballs
     command: sh -c "sh /nyaa/scripts/build-rootfs.sh"
   build-packages:
     image: ubuntu:latest
