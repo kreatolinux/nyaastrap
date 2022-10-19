@@ -167,8 +167,9 @@ case $1 in
             do
                 if [ "$CONFIG_BINARY" = "y" ]; then
                     installbin "$i" "${CONFIG_BUILDDIR:?}" || err "error while installing $i (binary)"
-                else 
-                    nyaa b "$i" -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing $i"
+                else
+                    nyaa b "$i" -y || err "error while building $i"
+                    nyaa i "$i" -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing $i"
                 fi
             done
         fi
