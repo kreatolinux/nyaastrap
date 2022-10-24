@@ -6,6 +6,7 @@ services:
     image: kreato/builder:latest
     volumes:
       - ./nyaa-repo:/etc/nyaa
+      - ./:/nyaa
       - ./out:/out
       - ./packages:/etc/nyaa.tarballs
     command: sh -c "sh /nyaa/scripts/build-rootfs.sh"
@@ -14,6 +15,7 @@ services:
     image: kreato/builder:latest
     volumes: 
       - ./nyaa-repo:/etc/nyaa
+      - ./:/nyaa
       - ./out:/out
       - ./packages:/etc/nyaa.tarballs
     command: sh -c "sh /nyaa/scripts/build-packages.sh" 
