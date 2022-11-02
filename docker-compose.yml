@@ -6,6 +6,7 @@ services:
     image: kreato/builder:latest
     volumes:
       - ./nyaa-repo:/etc/nyaa
+      - ./nyaa-repo-bin:/etc/nyaa-bin
       - ./:/nyaa
       - ./out:/out
       - ./packages:/etc/nyaa.tarballs
@@ -15,6 +16,7 @@ services:
     image: kreato/builder:latest
     volumes: 
       - ./nyaa-repo:/etc/nyaa
+      - ./nyaa-repo-bin:/etc/nyaa-bin
       - ./:/nyaa
       - ./out:/out
       - ./packages:/etc/nyaa.tarballs
