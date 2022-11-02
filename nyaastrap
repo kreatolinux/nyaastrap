@@ -110,9 +110,13 @@ case $1 in
         if [ "$CONFIG_CC_GCC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
             info "binary option selected, installing gcc with binary"
             installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
+            ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/cc"
+            ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/c99"
         else
             if [ "$CONFIG_CC_GCC" = "y" ]; then
                 nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+                ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/cc"
+                ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/c99"
             else
                 warn "WIP, GCC is the only option"
             fi 
