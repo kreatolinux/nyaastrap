@@ -1,3 +1,6 @@
 [submodule "nyaa-repo"]
 	path = nyaa-repo
 	url = https://github.com/kreatolinux/nyaa-repo.git
+[submodule "nyaa-repo-bin"]
+	path = nyaa-repo-bin
+	url = https://github.com/kreatolinux/nyaa-repo-bin
