@@ -148,8 +148,7 @@ case $1 in
         fi
 
         if [ "$CONFIG_BINARY" = "y" ]; then
-            # installbin p11-kit "${CONFIG_BUILDDIR:?}"
-            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
+             installbin p11-kit "${CONFIG_BUILDDIR:?}"
         else
             nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
         fi
