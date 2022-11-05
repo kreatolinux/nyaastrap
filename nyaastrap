@@ -107,26 +107,27 @@ case $1 in
 
 
 
-        if [ "$CONFIG_CC_GCC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
-            info "binary option selected, installing gcc with binary"
-            installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
-            ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/cc"
-            ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/c99"
-        else
-            if [ "$CONFIG_CC_GCC" = "y" ]; then
+        if [ "$CONFIG_CC_GCC" = "y" ]; then
+            if [ "$CONFIG_BINARY" = "y" ]; then
+                info "binary option selected, installing gcc with binary"
+                installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
+            else
                 nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
-                ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/cc"
-                ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/c99"
-            elif [ "$CONFIG_CC_CLANG" = "y" ]; then
+            fi
+            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
+            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
+            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c++"
+            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/g++" 
+        elif [ "$CONFIG_CC_CLANG" = "y" ]; then
                 if [ "$CONFIG_BINARY" = "y" ];
                     installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
                 else
                     nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
                 fi
-                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/cc"
-                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/c99"
-                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/c++"
-                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/g++"
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/cc"
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/c99"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/c++"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/g++"
             fi 
         fi
         
