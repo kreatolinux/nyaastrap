@@ -124,6 +124,7 @@ case $1 in
                     nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
                 fi
                 ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/cc"
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/c99"
                 ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/c++"
                 ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/g++"
             fi 
