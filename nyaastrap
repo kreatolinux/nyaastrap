@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with nyaastrap.  If not, see <https://www.gnu.org/licenses/>.
-VERSION="2.0"
+VERSION="2.1"
 
 err() {
     echo "E: $1"
@@ -117,8 +117,15 @@ case $1 in
                 nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
                 ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/cc"
                 ln -s gcc "${CONFIG_BUILDDIR:?}/usr/local/bin/c99"
-            else
-                warn "WIP, GCC is the only option"
+            elif [ "$CONFIG_CC_CLANG" = "y" ]; then
+                if [ "$CONFIG_BINARY" = "y" ];
+                    installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
+                else
+                    nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
+                fi
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/cc"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/c++"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/g++"
             fi 
         fi
         
@@ -129,13 +136,7 @@ case $1 in
         elif [ "$CONFIG_CLIB_GLIBC" = "y" ]; then
             nyaa b glibc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
-        
-        if [ "$CONFIG_BINARY" = "y" ]; then
-            installbin git "${CONFIG_BUILDDIR:?}"
-        else
-            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
-        fi
-        
+               
         nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}"
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
          if [ "$CONFIG_CORE_BUSYBOX" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
@@ -163,6 +164,13 @@ case $1 in
         done
         chroot "${CONFIG_BUILDDIR:?}" /bin/bash -c ". /etc/profile && cd / && /usr/sbin/make-ca -C certdata.txt"
         rm "${CONFIG_BUILDDIR:?}/certdata.txt"
+        
+        if [ "$CONFIG_BINARY" = "y" ]; then
+            installbin git "${CONFIG_BUILDDIR:?}"
+        else
+            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
+        fi
+
         if [ -n "$CONFIG_EXTRA_PACKAGES" ];
         then
             info "$CONFIG_EXTRA_PACKAGES is set, installing those"
