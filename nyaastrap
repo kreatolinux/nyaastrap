@@ -119,7 +119,8 @@ case $1 in
             ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c++"
             ln -s gcc "${CONFIG_BUILDDIR:?}/bin/g++" 
         elif [ "$CONFIG_CC_CLANG" = "y" ]; then
-                if [ "$CONFIG_BINARY" = "y" ];
+                if [ "$CONFIG_BINARY" = "y" ]
+                then
                     installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
                 else
                     nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
@@ -128,8 +129,7 @@ case $1 in
                 ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/c99"
                 ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/c++"
                 ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/g++"
-            fi 
-        fi
+        fi 
         
 
         if [ "$CONFIG_CLIB_GLIBC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
