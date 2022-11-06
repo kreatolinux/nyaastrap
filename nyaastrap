@@ -114,10 +114,10 @@ case $1 in
             else
                 nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
             fi
-            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
-            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
-            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c++"
-            ln -s gcc "${CONFIG_BUILDDIR:?}/bin/g++" 
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/cc"  ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/c99" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/c++" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c++"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/g++" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/g++" 
         elif [ "$CONFIG_CC_CLANG" = "y" ]; then
                 if [ "$CONFIG_BINARY" = "y" ]
                 then
@@ -139,7 +139,6 @@ case $1 in
             nyaa b glibc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
                
-        nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}"
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
          if [ "$CONFIG_CORE_BUSYBOX" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
             info "binary option selected, installing busybox with binary"
@@ -150,17 +149,22 @@ case $1 in
                 nyaa b busybox -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
                 chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install 
             else
-                err "WIP, busybox is the only optionP"
+                err "WIP, busybox is the only option"
             fi
         fi
 
         if [ "$CONFIG_BINARY" = "y" ]; then
-             installbin p11-kit "${CONFIG_BUILDDIR:?}"
-        else
-            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
+            installbin nyaa "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa (from binary)"
+            installbin p11-kit "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit (binary)"
+            installbin make-ca "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca (binary)"
+        else 
+            nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa"
+            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit"
+            nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
         fi
-
-        nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
+        
+        chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
+        
         until wget "https://hg.mozilla.org/releases/mozilla-release/raw-file/default/security/nss/lib/ckfw/builtins/certdata.txt" -O "${CONFIG_BUILDDIR:?}"/certdata.txt; do
             warn "download failed, retrying"
         done
