@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with nyaastrap.  If not, see <https://www.gnu.org/licenses/>.
-VERSION="1.3"
+VERSION="2.1"
 
 err() {
     echo "E: $1"
@@ -107,16 +107,29 @@ case $1 in
 
 
 
-        if [ "$CONFIG_CC_GCC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
-            info "binary option selected, installing gcc with binary"
-            installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
-        else
-            if [ "$CONFIG_CC_GCC" = "y" ]; then
-                nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+        if [ "$CONFIG_CC_GCC" = "y" ]; then
+            if [ "$CONFIG_BINARY" = "y" ]; then
+                info "binary option selected, installing gcc with binary"
+                installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
             else
-                warn "WIP, GCC is the only option"
-            fi 
-        fi
+                nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+            fi
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/cc"  ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/c99" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/c++" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c++"
+            [ ! -f "${CONFIG_BUILDDIR:?}/bin/g++" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/g++" 
+        elif [ "$CONFIG_CC_CLANG" = "y" ]; then
+                if [ "$CONFIG_BINARY" = "y" ]
+                then
+                    installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
+                else
+                    nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
+                fi
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/cc"
+                ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/c99"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/c++"
+                ln -s /usr/bin/clang++ "${CONFIG_BUILDDIR:?}/bin/g++"
+        fi 
         
 
         if [ "$CONFIG_CLIB_GLIBC" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
@@ -125,14 +138,7 @@ case $1 in
         elif [ "$CONFIG_CLIB_GLIBC" = "y" ]; then
             nyaa b glibc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
-        
-        if [ "$CONFIG_BINARY" = "y" ]; then
-            installbin git "${CONFIG_BUILDDIR:?}"
-        else
-            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
-        fi
-        
-        nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}"
+               
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
          if [ "$CONFIG_CORE_BUSYBOX" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
             info "binary option selected, installing busybox with binary"
@@ -143,23 +149,34 @@ case $1 in
                 nyaa b busybox -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
                 chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install 
             else
-                err "WIP, busybox is the only optionP"
+                err "WIP, busybox is the only option"
             fi
         fi
 
         if [ "$CONFIG_BINARY" = "y" ]; then
-            # installbin p11-kit "${CONFIG_BUILDDIR:?}"
-            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
-        else
-            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}"
+            installbin nyaa "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa (from binary)"
+            installbin p11-kit "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit (binary)"
+            installbin make-ca "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca (binary)"
+        else 
+            nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa"
+            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit"
+            nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
         fi
-
-        nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
+        
+        chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
+        
         until wget "https://hg.mozilla.org/releases/mozilla-release/raw-file/default/security/nss/lib/ckfw/builtins/certdata.txt" -O "${CONFIG_BUILDDIR:?}"/certdata.txt; do
             warn "download failed, retrying"
         done
         chroot "${CONFIG_BUILDDIR:?}" /bin/bash -c ". /etc/profile && cd / && /usr/sbin/make-ca -C certdata.txt"
         rm "${CONFIG_BUILDDIR:?}/certdata.txt"
+        
+        if [ "$CONFIG_BINARY" = "y" ]; then
+            installbin git "${CONFIG_BUILDDIR:?}"
+        else
+            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
+        fi
+
         if [ -n "$CONFIG_EXTRA_PACKAGES" ];
         then
             info "$CONFIG_EXTRA_PACKAGES is set, installing those"

@@ -1,19 +1,19 @@
 #!/bin/sh
 echo "nyaastrap - compile packages mode"
-cd /nyaa || exit 1
-apt-get update
-apt-get upgrade -y
-for pkgs in $(cat pkgs)
-do
-    PKGLIST="$PKGLIST $pkgs"
-done
-apt-get install $PKGLIST -y
-if [ ! -f "nyaa" ]; then
-    git clone https://github.com/kreatolinux/nyaa
-fi
-cp -f nyaa /usr/bin
-chmod +x /usr/bin/nyaa
-[ -d "nyaa" ] && rm -r nyaa
 git config --global --add safe.directory /etc/nyaa
-cd /etc/nyaa
-sh build-everything.sh
+. /etc/profile
+rm -rf /etc/nyaa.installed
+cd /nyaa/scripts || exit 1
+sh test_bin.sh -o test.txt
+cd /nyaa/nyaa-repo || exit 1
+for i in *
+do
+    if [ -d "$i" ]; then
+        . "$i/run"
+        while read line
+        do
+            [ "nyaa-tarball-$i-$VERSION.tar.gz" = "$line" ] && nyaa b $i -y
+        done < /nyaa/scripts/test.txt
+    fi
+done
+rm -f /nyaa/scripts/test.txt
