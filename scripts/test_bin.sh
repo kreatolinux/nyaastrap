@@ -22,7 +22,9 @@ do
                 echo "$(basename $pkgname)" >> "$logfile"
             fi
         else
-            echo "INFO: $i is built"
+            if [ "$1" = "-i" ] || [ "$3" = "-i" ]; then
+                echo "INFO: $i is built"
+            fi
         fi
     fi
 done
