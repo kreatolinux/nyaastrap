@@ -34,7 +34,7 @@ jobs:
         
       - name: Build rootfs tarball (from source, with custom options)
         run: |
-          ln -s $GITHUB_WORKSPACE /nyaa
+          rm -rf /out/*
           mkdir /out
           ln -s /out /nyaa/out
           cd /nyaa
