@@ -17,10 +17,14 @@ jobs:
       
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          submodules: 'true'
         
       - name: Build rootfs tarball
         run: |
           ln -s $GITHUB_WORKSPACE /nyaa
+          mkdir /out
+          ln -s /out /nyaa/out
           cd /nyaa
           sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
           sh scripts/build-rootfs.sh
@@ -34,10 +38,3 @@ jobs:
           path: ${{ github.workspace }}/kreato-linux-*.tar.gz
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error 
-      
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          ln -s $GITHUB_WORKSPACE /nyaa
-          echo Add other actions to build,
-          echo test, and deploy your project.
