@@ -4,7 +4,7 @@ git config --global --add safe.directory /etc/nyaa
 . /etc/profile
 rm -rf /etc/nyaa.installed
 cd /nyaa/scripts || exit 1
-sh test_bin.sh -o test.txt
+IGNORE_PACKAGES=$IGNORE_PACKAGES sh test_bin.sh -o test.txt
 cd /nyaa/nyaa-repo || exit 1
 for i in *
 do
