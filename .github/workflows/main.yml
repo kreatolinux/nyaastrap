@@ -40,6 +40,7 @@ jobs:
           rm -rf /out*
           cd /nyaa
           nyaa u
+          git restore .config
           sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
