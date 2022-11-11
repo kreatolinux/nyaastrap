@@ -19,19 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'true'
-        
-      - name: Build rootfs tarball (from binary, with default options)
-        run: |
-          ln -s $GITHUB_WORKSPACE /nyaa
-          mkdir /out
-          ln -s /out /nyaa/out
-          cd /nyaa
-          nyaa u
-          sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
-          sh scripts/build-rootfs.sh
-          mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
-        
-        
+          
       - name: Build rootfs tarball (from source, with custom options)
         run: |
           rm -rf /out/*
@@ -44,6 +32,18 @@ jobs:
           echo "CONFIG_BINARY=n" >> .config
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-nocc-"$(date +%d-%m-%Y)".tar.gz
+        
+      - name: Build rootfs tarball (from binary, with default options)
+        run: |
+          ln -s $GITHUB_WORKSPACE /nyaa
+          mkdir /out
+          ln -s /out /nyaa/out
+          cd /nyaa
+          nyaa u
+          sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
+          sh scripts/build-rootfs.sh
+          mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
+        
     
       - name: Upload Builder Rootfs
         uses: actions/upload-artifact@v3.1.1
@@ -55,7 +55,7 @@ jobs:
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error 
 
-      - name: Upload a Build Artifact
+      - name: Upload Source Rootfs
         uses: actions/upload-artifact@v3.1.1
         with:
           # Artifact name
