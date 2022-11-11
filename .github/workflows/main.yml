@@ -22,7 +22,9 @@ jobs:
           
       - name: Build rootfs tarball (from source, with custom options)
         run: |
-          rm -rf /out/*
+          ln -s $GITHUB_WORKSPACE /nyaa
+          mkdir /out
+          ln -s /out /nyaa/out
           cd /nyaa
           nyaa u
           echo "CONFIG_BUILDDIR=/out" > .config
@@ -35,9 +37,7 @@ jobs:
         
       - name: Build rootfs tarball (from binary, with default options)
         run: |
-          ln -s $GITHUB_WORKSPACE /nyaa
-          mkdir /out
-          ln -s /out /nyaa/out
+          rm -rf /out*
           cd /nyaa
           nyaa u
           sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
