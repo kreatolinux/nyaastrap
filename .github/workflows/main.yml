@@ -39,6 +39,7 @@ jobs:
         run: |
           rm -rf /out*
           cd /nyaa
+          git config --global --add safe.directory /__w/nyaastrap/nyaastrap
           nyaa u
           git restore .config
           sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
