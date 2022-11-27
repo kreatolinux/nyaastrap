@@ -23,7 +23,7 @@ err() {
         echo "ERROR: $1 is NOT built"
         if [ "$HAS_LOGS" = "y" ]
         then
-            "$(basename "$2")" >> "$logfile"
+            echo "$(basename "$2")" >> "$logfile"
         fi
     fi
 }
