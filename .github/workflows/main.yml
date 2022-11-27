@@ -35,14 +35,13 @@ jobs:
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-nocc-"$(date +%d-%m-%Y)".tar.gz
         
-      - name: Build rootfs tarball (from binary, with default options)
+      - name: Build rootfs tarball (from source, with default options)
         run: |
           rm -rf /out*
           cd /nyaa
           git config --global --add safe.directory /__w/nyaastrap/nyaastrap
           nyaa u
           git restore .config
-          sed -i 's/CONFIG_BINARY=n/CONFIG_BINARY=y/g' .config
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
         
