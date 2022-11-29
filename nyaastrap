@@ -79,13 +79,14 @@ printf -- "------------------------------------------
 
 case $1 in
     "-c")
-        chkroot
+        chkroot 
         if [ -f "$PWD/.config" ]; then
             . "$PWD/.config"
         else
             [ ! -f "$2" ] && err "please enter a config filename"
             [ -f "$2" ] && . "$2"
         fi
+        [ ! -d "/etc/nyaa.installed/builder-essentials" ] && nyaa i builder-essentials
         intro
         mkdir_dirs "${CONFIG_BUILDDIR:?}"
         chkoverlay "${CONFIG_BUILDDIR:?}"
