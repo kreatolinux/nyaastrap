@@ -27,7 +27,7 @@ jobs:
           ln -s /out /nyaa/out
           cd /nyaa
           nyaa u
-          nyaa i builder-essentials -y
+          nyaa i gmake -y
           echo "CONFIG_BUILDDIR=/out" > .config
           echo "CONFIG_CLIB_GLIBC=y" >> .config
           echo "CONFIG_TLS_OPENSSL=y" >> .config
