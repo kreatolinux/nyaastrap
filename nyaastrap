@@ -67,6 +67,11 @@ installbin() {
     nyaa i "$1" -y -r "${2:?}"
 }
 
+installsrc() {
+    [ -f "/tmp/nyaa.lock" ] && rm -f /tmp/nyaa.lock || err "Lock file exists and couldn't be removed"
+    nyaa b "$1" -y -r "${2:?}"
+}
+
 intro() {
 printf -- "------------------------------------------
 --                                      --
@@ -99,9 +104,9 @@ case $1 in
             installbin libressl "${CONFIG_BUILDDIR:?}"
         else
             if [ "$CONFIG_TLS_OPENSSL" = "y" ]; then
-                nyaa b openssl -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing openssl"
+                installsrc openssl "${CONFIG_BUILDDIR:?}" || err "error while installing openssl"
             elif [ "$CONFIG_TLS_LIBRESSL" = "y" ]; then
-                nyaa b libressl -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing libressl"
+                installsrc libressl "${CONFIG_BUILDDIR:?}" || err "error while installing libressl"
             fi
         fi
         
@@ -113,7 +118,7 @@ case $1 in
                 info "binary option selected, installing gcc with binary"
                 installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
             else
-                nyaa b gcc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+                installsrc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
             fi
             [ ! -f "${CONFIG_BUILDDIR:?}/bin/cc"  ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
             [ ! -f "${CONFIG_BUILDDIR:?}/bin/c99" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
@@ -124,7 +129,7 @@ case $1 in
                 then
                     installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
                 else
-                    nyaa b llvm -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
+                    installsrc llvm "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
                 fi
                 ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/cc"
                 ln -s /usr/bin/clang "${CONFIG_BUILDDIR:?}/bin/c99"
@@ -137,7 +142,7 @@ case $1 in
                 info "binary option selected, installing glibc with binary"
                 installbin glibc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc (from binary)"
         elif [ "$CONFIG_CLIB_GLIBC" = "y" ]; then
-            nyaa b glibc -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
+                installsrc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
                
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
@@ -147,7 +152,7 @@ case $1 in
             chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install
         else
             if [ "$CONFIG_CORE_BUSYBOX" = "y" ]; then
-                nyaa b busybox -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
+                installsrc busybox "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
                 chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install 
             else
                 err "WIP, busybox is the only option"
@@ -159,9 +164,9 @@ case $1 in
             installbin p11-kit "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit (binary)"
             installbin make-ca "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca (binary)"
         else 
-            nyaa b nyaa -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa"
-            nyaa b p11-kit -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit"
-            nyaa b make-ca -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
+            installsrc nyaa "${CONFIG_BUILDDIR:?}" || err "error while installing nyaa"
+            installsrc p11-kit "${CONFIG_BUILDDIR:?}" || err "error while installing p11-kit"
+            installsrc make-ca "${CONFIG_BUILDDIR:?}" || err "error while installing make-ca"
         fi
         
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
@@ -175,7 +180,7 @@ case $1 in
         if [ "$CONFIG_BINARY" = "y" ]; then
             installbin git "${CONFIG_BUILDDIR:?}"
         else
-            nyaa b git -y -r "${CONFIG_BUILDDIR:?}"
+            installsrc git "${CONFIG_BUILDDIR:?}"
         fi
 
         if [ -n "$CONFIG_EXTRA_PACKAGES" ];
@@ -187,7 +192,7 @@ case $1 in
                     installbin "$i" "${CONFIG_BUILDDIR:?}" || err "error while installing $i (binary)"
                 else
                     nyaa b "$i" -y || err "error while building $i"
-                    nyaa i "$i" -y -r "${CONFIG_BUILDDIR:?}" || err "error while installing $i"
+                    installbin "$i" "${CONFIG_BUILDDIR:?}" || err "error while installing $i"
                 fi
             done
         fi
