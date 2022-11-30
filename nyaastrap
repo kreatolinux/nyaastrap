@@ -119,7 +119,7 @@ case $1 in
                 info "binary option selected, installing gcc with binary"
                 installbin gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc (from binary)"
             else
-                installsrc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
+                installsrc gcc "${CONFIG_BUILDDIR:?}" || err "error while installing gcc" 
             fi
             [ ! -f "${CONFIG_BUILDDIR:?}/bin/cc"  ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/cc"
             [ ! -f "${CONFIG_BUILDDIR:?}/bin/c99" ] && ln -s gcc "${CONFIG_BUILDDIR:?}/bin/c99"
@@ -143,7 +143,7 @@ case $1 in
                 info "binary option selected, installing glibc with binary"
                 installbin glibc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc (from binary)"
         elif [ "$CONFIG_CLIB_GLIBC" = "y" ]; then
-                installsrc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
+                installsrc glibc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
                
         chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
