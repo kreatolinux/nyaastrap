@@ -68,7 +68,8 @@ installbin() {
 }
 
 installsrc() {
-    [ -f "/tmp/nyaa.lock" ] && rm -f /tmp/nyaa.lock || err "Lock file exists and couldn't be removed"
+    rm -f /tmp/nyaa.lock
+    [ -f "/tmp/nyaa.lock" ] && err "Lock file exists and couldn't be removed"
     nyaa b "$1" -y -r "${2:?}"
 }
 
