@@ -24,8 +24,8 @@ jobs:
         run: |
           ln -s $GITHUB_WORKSPACE /nyaa
           wget https://raw.githubusercontent.com/kreatolinux/nyaa/master/nyaa
-          mv nyaa $(which nyaa)
-          chmod +x $(which nyaa)
+          mv nyaa "$(which nyaa)"
+          chmod +x "$(which nyaa)"
           mkdir /out
           ln -s /out /nyaa/out
           cd /nyaa
