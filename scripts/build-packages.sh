@@ -13,6 +13,9 @@ do
         while read line
         do
             [ "nyaa-tarball-$i-$VERSION.tar.gz" = "$line" ] && nyaa b $i -y
+            VERSION_NEW=$VERSION
+	        . /nyaa/nyaa-repo/$i/run
+	        sed -i "s/$VERSION/$VERSION_NEW/g" /nyaa/nyaa-repo/$i/run
         done < /nyaa/scripts/test.txt
     fi
 done
