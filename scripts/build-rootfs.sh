@@ -3,11 +3,9 @@ DEFCONFIG=changeme
 cd /nyaa || exit 1
 git config --global --add safe.directory /etc/nyaa
 
-if [ ! -f "../defconfig/$DEFCONFIG" ]; then
-	cd .. || exit 1
+if [ ! -f "defconfig/$DEFCONFIG" ]; then
 	./nyaastrap -c
 else
-	cd .. || exit 1
 	./nyaastrap -c defconfig/$DEFCONFIG
 fi
 
