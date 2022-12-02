@@ -22,8 +22,6 @@ jobs:
         run: |
           [ -d "packages" ] && rm -rf packages
           ln -s /etc/nyaa.tarballs packages
-          cd nyaa-repo-bin || exit 1
-          git pull origin master
           docker compose up build-packages
           cd nyaa-repo-bin || exit 1
           git diff > ../nyaa-repo-bin-update.diff
