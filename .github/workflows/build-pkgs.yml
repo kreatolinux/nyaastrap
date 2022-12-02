@@ -22,4 +22,18 @@ jobs:
         run: |
           [ -d "packages" ] && rm -rf packages
           ln -s /etc/nyaa.tarballs packages
+          cd nyaa-repo-bin || exit 1
+          git pull origin master
           docker compose up build-packages
+          cd nyaa-repo-bin || exit 1
+          git diff > ../nyaa-repo-bin-update.diff
+      
+      - name: Upload nyaa repo bin update diff
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          # Artifact name
+          name: nyaa-repo-bin-update # optional, default is artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: ${{ github.workspace }}/nyaa-repo-bin-update.diff
+          # The desired behavior if no files are found using the provided path.
+          if-no-files-found: error 
