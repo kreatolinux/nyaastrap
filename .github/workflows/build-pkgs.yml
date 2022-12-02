@@ -1,0 +1,25 @@
+name: Build Packages
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+          
+      - name: Build packages
+        run: |
+          [ -d "packages" ] && rm -rf packages
+          ln -s /etc/nyaa.tarballs packages
+          docker-compose up build-packages
