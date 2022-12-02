@@ -22,4 +22,4 @@ jobs:
         run: |
           [ -d "packages" ] && rm -rf packages
           ln -s /etc/nyaa.tarballs packages
-          docker-compose up build-packages
+          docker compose up build-packages
