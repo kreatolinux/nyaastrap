@@ -20,7 +20,7 @@ jobs:
         with:
           submodules: 'true'
           
-      - name: Build rootfs tarball (from source, with custom options)
+      - name: Build nocc rootfs tarball
         run: |
           ln -s $GITHUB_WORKSPACE /nyaa
           wget https://raw.githubusercontent.com/kreatolinux/nyaa/master/nyaa
@@ -30,21 +30,18 @@ jobs:
           ln -s /out /nyaa/out
           cd /nyaa
           nyaa u
-          echo "CONFIG_BUILDDIR=/out" > .config
-          echo "CONFIG_CLIB_GLIBC=y" >> .config
-          echo "CONFIG_TLS_OPENSSL=y" >> .config
-          echo "CONFIG_CORE_BUSYBOX=y" >> .config
-          echo "CONFIG_BINARY=n" >> .config
+          sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
+          sed -i 's/nocc_defconfig/changeme/' scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-nocc-"$(date +%d-%m-%Y)".tar.gz
         
-      - name: Build rootfs tarball (from source, with default options)
+      - name: Build builder rootfs tarball
         run: |
           rm -rf /out*
           cd /nyaa
           git config --global --add safe.directory /__w/nyaastrap/nyaastrap
           nyaa u
-          git restore .config
+          sed -i 's/changeme/builder_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
         
