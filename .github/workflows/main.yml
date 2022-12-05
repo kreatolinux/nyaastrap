@@ -28,6 +28,7 @@ jobs:
           chmod +x "/bin/nyaa"
           mkdir /out
           ln -s /out /nyaa/out
+          [ "$(which bsdtar)" = "" ] && ln -s $(which tar) /bin/bsdtar
           cd /nyaa
           nyaa u
           sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
