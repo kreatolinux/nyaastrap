@@ -64,12 +64,10 @@ chkoverlay() {
 }
 
 installbin() {
-    nyaa i "$1" -y -r "${2:?}"
+    nyaa install "$1" -y -r "${2:?}"
 }
 
 installsrc() {
-    rm -f /tmp/nyaa.lock
-    [ -f "/tmp/nyaa.lock" ] && err "Lock file exists and couldn't be removed"
     nyaa b "$1" -y -r "${2:?}"
 }
 
@@ -127,6 +125,7 @@ case $1 in
         elif [ "$CONFIG_CC_CLANG" = "y" ]; then
                 if [ "$CONFIG_BINARY" = "y" ]
                 then
+                    warn "compiling packages with LLVM hasn't been tested yet"
                     installbin llvm "${CONFIG_BUILDDIR:?}" || err "error while llvm (from binary)"
                 else
                     installsrc llvm "${CONFIG_BUILDDIR:?}" || err "error while installing llvm"
@@ -154,8 +153,13 @@ case $1 in
             if [ "$CONFIG_CORE_BUSYBOX" = "y" ]; then
                 installsrc busybox "${CONFIG_BUILDDIR:?}" || err "error while installing busybox"
                 chroot "${CONFIG_BUILDDIR:?}" /bin/busybox --install 
+            elif [ "$CONFIG_CORE_GNU" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
+                    warn "GNU coreutils hasn't been tested and may have problems with some packages, it is recommended to use Busybox for now"
+                    installbin gnu-coreutils "${CONFIG_BUILDDIR:?}" || err "error while installing gnu coreutils"
+            elif [ "$CONFIG_CORE_GNU" = "y" ] && [ "$CONFIG_BINARY" != "y" ]; then
+                    installsrc gnu-coreutils "${CONFIG_BUILDDIR:?}" || err "error while building gnu coreutils"
             else
-                err "WIP, busybox is the only option"
+                err "WIP, GNU coreutils and busybox are the only available options"
             fi
         fi
 
@@ -229,10 +233,6 @@ case $1 in
         case $6 in
             "busybox")
                 echo "CONFIG_CORE_BUSYBOX=y"
-            ;;
-            "nimutils")
-                echo "# PLEASE KNOW THAT NIMUTILS IS STILL EXPERIMENTAL"
-                echo "CONFIG_CORE_NIMUTILS=y"
             ;;
             "uutils")
                 echo "CONFIG_CORE_UUTILS=y"
