@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
+    container: kreato/builder:latest
     steps:
       
       - name: Checkout
@@ -22,7 +23,7 @@ jobs:
         run: |
           [ -d "packages" ] && rm -rf packages
           ln -s /etc/nyaa.tarballs packages
-          docker compose up build-packages
+          sh /nyaa/scripts/build-packages.sh
           cd nyaa-repo-bin || exit 1
           git diff > ../nyaa-repo-bin-update.diff
       
