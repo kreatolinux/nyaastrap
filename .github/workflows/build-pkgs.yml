@@ -16,11 +16,10 @@ jobs:
       
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          submodules: 'true'
-          
+      
       - name: Build packages
         run: |
+          ln -s $GITHUB_WORKSPACE /nyaa
           [ -d "packages" ] && rm -rf packages
           ln -s /etc/nyaa.tarballs packages
           sh /nyaa/scripts/build-packages.sh
