@@ -26,7 +26,7 @@ jobs:
           cd /tmp
           wget https://github.com/kreatolinux/nyaa2/archive/refs/tags/v2.1c.tar.gz
           tar -xvf v2.1c.tar.gz
-          cd nyaa-v2.1c || exit 1
+          cd nyaa2-2.1c || exit 1
           mv nyaa "/bin/nyaa"
           chmod +x "/bin/nyaa"
           mkdir /out
