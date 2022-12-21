@@ -23,9 +23,6 @@ jobs:
       - name: Build nocc rootfs tarball
         run: |
           ln -s $GITHUB_WORKSPACE /nyaa
-          wget https://raw.githubusercontent.com/kreatolinux/nyaa/master/nyaa
-          mv nyaa "/bin/nyaa"
-          chmod +x "/bin/nyaa"
           mkdir /out
           ln -s /out /nyaa/out
           if [ "$(which bsdtar)" = "" ]; then
@@ -34,6 +31,7 @@ jobs:
           fi
           cd /nyaa
           nyaa u
+          nyaa b nyaa -y
           sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
           sed -i 's/nocc_defconfig/changeme/' scripts/build-rootfs.sh
