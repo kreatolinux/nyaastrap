@@ -48,7 +48,7 @@ jobs:
           rm -rf /out*
           cd /nyaa
           git config --global --add safe.directory /__w/nyaastrap/nyaastrap
-          nyaa upgrade
+          nyaa update
           sed -i 's/changeme/builder_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-builder-"$(date +%d-%m-%Y)".tar.gz
