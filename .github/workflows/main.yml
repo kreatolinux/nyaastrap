@@ -24,11 +24,6 @@ jobs:
         run: |
           ln -s $GITHUB_WORKSPACE /nyaa
           cd /tmp
-          wget https://github.com/kreatolinux/nyaa2/archive/refs/tags/v2.1c.tar.gz
-          tar -xvf v2.1c.tar.gz
-          cd nyaa2-2.1c || exit 1
-          mv nyaa "/bin/nyaa"
-          chmod +x "/bin/nyaa"
           mkdir /out
           ln -s /out /nyaa/out
           if [ "$(which bsdtar)" = "" ]; then
@@ -36,8 +31,9 @@ jobs:
             chmod +x /bin/bsdtar
           fi
           cd /nyaa
-          nyaa u
-          nyaa b nyaa -y
+          cp -f nyaa /bin/nyaa # TODO: replace this with nightly.link when it is not down
+          chmod +x /bin/nyaa
+          nyaa update
           sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
           sed -i 's/nocc_defconfig/changeme/' scripts/build-rootfs.sh
