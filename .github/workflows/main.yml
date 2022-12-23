@@ -31,7 +31,9 @@ jobs:
             chmod +x /bin/bsdtar
           fi
           cd /nyaa
-          cp -f nyaa /bin/nyaa # TODO: replace this with nightly.link when it is not down
+          wget https://nightly.link/kreatolinux/nyaa3/workflows/build/master/nyaa3-withssl.zip
+          unzip nyaa3-withssl.zip
+          mv nyaa /bin/nyaa
           chmod +x /bin/nyaa
           nyaa update
           sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
