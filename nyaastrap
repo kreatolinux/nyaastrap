@@ -144,7 +144,6 @@ case $1 in
                 installsrc glibc "${CONFIG_BUILDDIR:?}" || err "error while installing glibc"
         fi
                
-        chmod +x "${CONFIG_BUILDDIR:?}"/bin/nyaa
          if [ "$CONFIG_CORE_BUSYBOX" = "y" ] && [ "$CONFIG_BINARY" = "y" ]; then
             info "binary option selected, installing busybox with binary"
             installbin busybox "${CONFIG_BUILDDIR:?}" || err "error while installing busybox (binary)"
