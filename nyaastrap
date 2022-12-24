@@ -71,7 +71,7 @@ installsrc() {
   if [ ! -f "/etc/nyaa.tarballs/nyaa-tarball-$1-"*".tar.gz" ] || [ ! -f "/etc/nyaa.tarballs/nyaa-tarball-$1-"*".tar.gz.sum" ]; then
     nyaa b "$1" -y -r "${2:?}"
   else
-    installbin "$1" "${2:?}"
+    nyaa install "$1" -y -r "${2:?}" --offline
   fi
 }
 
