@@ -40,7 +40,18 @@ jobs:
           sh scripts/build-rootfs.sh
           sed -i 's/nocc_defconfig/changeme/' scripts/build-rootfs.sh
           mv kreato-linux-"$(date +%d-%m-%Y)".tar.gz kreato-linux-nocc-"$(date +%d-%m-%Y)".tar.gz
-        
+       
+      
+      - name: Upload Source Rootfs
+        uses: actions/upload-artifact@v3.1.1
+        with:
+          # Artifact name
+          name: nocc-rootfs # optional, default is artifact
+          # A file, directory or wildcard pattern that describes what to upload
+          path: ${{ github.workspace }}/kreato-linux-nocc-*.tar.gz
+          # The desired behavior if no files are found using the provided path.
+          if-no-files-found: error
+
       - name: Build builder rootfs tarball
         run: |
           rm -rf /out*
@@ -59,15 +70,5 @@ jobs:
           name: builder-rootfs # optional, default is artifact
           # A file, directory or wildcard pattern that describes what to upload
           path: ${{ github.workspace }}/kreato-linux-builder-*.tar.gz
-          # The desired behavior if no files are found using the provided path.
-          if-no-files-found: error 
-
-      - name: Upload Source Rootfs
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          # Artifact name
-          name: nocc-rootfs # optional, default is artifact
-          # A file, directory or wildcard pattern that describes what to upload
-          path: ${{ github.workspace }}/kreato-linux-nocc-*.tar.gz
           # The desired behavior if no files are found using the provided path.
           if-no-files-found: error 
