@@ -36,6 +36,9 @@ jobs:
           mv nyaa /bin/nyaa
           chmod +x /bin/nyaa
           nyaa update
+          if [ ! -d "/etc/nyaa.installed/nim" ]; then
+            nyaa build nim -y
+          fi
           sed -i 's/changeme/nocc_defconfig/' scripts/build-rootfs.sh
           sh scripts/build-rootfs.sh
           sed -i 's/nocc_defconfig/changeme/' scripts/build-rootfs.sh
