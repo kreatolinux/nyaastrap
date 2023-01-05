@@ -31,10 +31,10 @@ jobs:
             chmod +x /bin/bsdtar
           fi
           cd /nyaa
-          #wget https://nightly.link/kreatolinux/nyaa3/workflows/build/master/nyaa3-withssl.zip
-          #unzip nyaa3-withssl.zip
-          #mv nyaa /bin/nyaa
-          #chmod +x /bin/nyaa
+          wget https://nightly.link/kreatolinux/nyaa3/workflows/build/master/nyaa3-withssl.zip
+          unzip nyaa3-withssl.zip
+          mv nyaa /bin/nyaa
+          chmod +x /bin/nyaa
           nyaa update
           if [ ! -d "/etc/nyaa.installed/nim" ]; then
             nyaa build nim -y
